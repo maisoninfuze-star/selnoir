@@ -1,0 +1,164 @@
+:root {
+  --black: #0a0a0b;
+  --char: #141416;
+  --surface: #1a1816;
+  --ember-1: #c8853c;
+  --ember-2: #f0c060;
+  --blood: #7a1414;
+  --text: #f4efe7;
+  --muted: #9a9388;
+  --gold: #e8c489;
+  --serif: "Bodoni Moda", "Times New Roman", serif;
+  --grotesk: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-font-smoothing: antialiased; }
+
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: var(--grotesk);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+@media (hover: none) { body { cursor: auto; } }
+
+::selection { background: var(--ember-1); color: var(--black); }
+
+h1, h2, h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  text-wrap: balance;
+  letter-spacing: -0.01em;
+}
+
+p { text-wrap: pretty; }
+
+.label {
+  font-family: var(--grotesk);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* Keyboard focus — visible, on-brand, never on mouse click */
+:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+:focus:not(:focus-visible) { outline: none; }
+
+/* ---------- Film grain overlay ---------- */
+.grain {
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 9000;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 0.6s steps(2) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-3%, 2%); }
+  100% { transform: translate(2%, -2%); }
+}
+.vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8000;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.55) 100%);
+}
+
+/* ---------- Custom cursor ---------- */
+.cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+  background: radial-gradient(circle, rgba(240,192,96,0.55) 0%, rgba(200,133,60,0.18) 45%, transparent 70%);
+  transition: width 0.25s ease, height 0.25s ease, background 0.25s ease;
+}
+.cursor.hot { width: 64px; height: 64px; background: radial-gradient(circle, rgba(240,192,96,0.75) 0%, rgba(122,20,20,0.3) 50%, transparent 72%); }
+
+/* ---------- Nav ---------- */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2.4rem;
+  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.7);
+  background: linear-gradient(to bottom, rgba(10, 10, 11, 0.55), transparent);
+}
+.nav .brand {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.05rem;
+  letter-spacing: 0.42em;
+  padding-left: 0.42em;
+  color: var(--text);
+}
+.nav .links { display: flex; gap: 2rem; }
+.nav a {
+  color: rgba(244, 239, 231, 0.82);
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+.nav a:hover { color: var(--gold); }
+@media (max-width: 760px) { .nav .links { display: none; } }
+
+/* ---------- Reserve sticky ---------- */
+.reserve-fab {
+  position: fixed;
+  bottom: 2rem; right: 2rem;
+  z-index: 200;
+  padding: 0.95rem 1.8rem;
+  border: 1px solid var(--ember-1);
+  border-radius: 100px;
+  background: rgba(10,10,11,0.6);
+  backdrop-filter: blur(8px);
+  color: var(--ember-2);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: none;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+.reserve-fab:hover { background: var(--ember-1); color: var(--black); transform: translateY(-2px); }
+
+/* ---------- Section scaffolding ---------- */
+section { position: relative; }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 2.4rem; }
+
+.reveal-line { overflow: hidden; }
+.reveal-line > span { display: block; will-change: transform; }
+
+/* Hero drifting smoke texture (kept in plain CSS — large data-URIs break styled-jsx parsing) */
+.hero-smoke {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
+  background-size: cover;
+}
