@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Magnetic from "@/components/Magnetic";
 
 export default function Closing() {
   const root = useRef<HTMLElement>(null);
@@ -52,9 +53,11 @@ export default function Closing() {
         <div className="wrap room-copy">
           <h2>Exposed stone, a single candle,<br />and the glint off the knife.</h2>
           <p>1490 Sherbrooke Ouest · Montréal · Valet evenings</p>
-          <a className="reserve-btn" href="#reserve" data-hot>
-            Reserve a table
-          </a>
+          <Magnetic radius={80}>
+            <a className="reserve-btn" href="#reserve" data-hot>
+              Reserve a table
+            </a>
+          </Magnetic>
         </div>
       </div>
 
@@ -65,9 +68,11 @@ export default function Closing() {
             <div>
               <span className="label">Reservations</span>
               <p className="foot-lead">Open Tuesday through Sunday, from 5 PM.</p>
-              <a className="reserve-btn ghost" href="https://www.opentable.com" target="_blank" rel="noreferrer" data-hot>
-                Book on OpenTable
-              </a>
+              <Magnetic radius={80}>
+                <a className="reserve-btn ghost" href="https://www.opentable.com" target="_blank" rel="noreferrer" data-hot>
+                  Book on OpenTable
+                </a>
+              </Magnetic>
             </div>
             <div>
               <span className="label">Find us</span>

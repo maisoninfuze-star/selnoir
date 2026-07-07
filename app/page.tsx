@@ -1,17 +1,21 @@
 import dynamic from "next/dynamic";
 import SmoothScroll from "@/components/SmoothScroll";
 import Cursor from "@/components/Cursor";
+import Preloader from "@/components/Preloader";
 import Hero from "@/components/Hero";
 import Story from "@/components/Story";
+import Marquee from "@/components/Marquee";
 import DishGallery from "@/components/DishGallery";
 import Closing from "@/components/Closing";
+import ReserveFab from "@/components/ReserveFab";
 
-// 3D centerpiece is client-only (WebGL) — loads after first paint
+// Video-driven centerpiece is client-only — loads after first paint
 const SaltCrystal = dynamic(() => import("@/components/SaltCrystal"), { ssr: false });
 
 export default function Home() {
   return (
     <>
+      <Preloader />
       <SmoothScroll />
       <Cursor />
 
@@ -28,13 +32,12 @@ export default function Home() {
         <Hero />
         <SaltCrystal />
         <Story />
+        <Marquee />
         <DishGallery />
         <Closing />
       </main>
 
-      <a className="reserve-fab" href="#reserve" data-hot>
-        Reserve
-      </a>
+      <ReserveFab />
 
       <div className="grain" aria-hidden />
       <div className="vignette" aria-hidden />

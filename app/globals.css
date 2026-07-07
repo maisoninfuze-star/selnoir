@@ -146,9 +146,13 @@ p { text-wrap: pretty; }
   letter-spacing: 0.24em;
   text-transform: uppercase;
   cursor: none;
-  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+  transition: background 0.4s ease, color 0.4s ease;
 }
-.reserve-fab:hover { background: var(--ember-1); color: var(--black); transform: translateY(-2px); }
+.reserve-fab-label { display: inline-block; }
+.reserve-fab:hover { background: var(--ember-1); color: var(--black); }
+@media (hover: none) {
+  .reserve-fab { cursor: auto; }
+}
 
 /* ---------- Section scaffolding ---------- */
 section { position: relative; }
