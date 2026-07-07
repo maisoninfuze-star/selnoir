@@ -18,7 +18,9 @@ export default function SaltCrystal() {
       v?.pause();
     });
 
-    // Copy reveal + transform parallax — smooth on every device.
+    // Copy reveal + transform parallax + a smooth ambient loop that only decodes
+    // while the section is on screen. (Scroll-scrubbing the video by seeking every
+    // frame was the main source of jank, so the rotation now runs on its own.)
     mm.add(
       "(prefers-reduced-motion: no-preference)",
       () => {
@@ -35,39 +37,22 @@ export default function SaltCrystal() {
           { scale: 1.04, yPercent: -3 },
           { scale: 1.14, yPercent: 3, ease: "none", scrollTrigger: { trigger: root.current, start: "top bottom", end: "bottom top", scrub: true } }
         );
+
+        if (!v || !root.current) return;
+        v.loop = true;
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) v.play?.().catch(() => {});
+              else v.pause();
+            }
+          },
+          { threshold: 0.01 }
+        );
+        io.observe(root.current);
+        return () => { io.disconnect(); v.pause(); };
       },
       root
-    );
-
-    // Desktop pointer: rotation/drift driven by scroll position (video seek).
-    mm.add("(min-width: 761px) and (pointer: fine) and (prefers-reduced-motion: no-preference)", () => {
-      if (!v) return;
-      let duration = 0;
-      const setDur = () => { duration = v.duration || 0; };
-      v.addEventListener("loadedmetadata", setDur);
-      setDur();
-      const st = ScrollTrigger.create({
-        trigger: root.current,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 0.6,
-        onUpdate: (self) => {
-          if (!duration) return;
-          gsap.to(v, { currentTime: self.progress * duration, duration: 0.25, overwrite: true, ease: "none" });
-        },
-      });
-      return () => { v.removeEventListener("loadedmetadata", setDur); st.kill(); };
-    });
-
-    // Touch / small screens: smooth ambient loop (seeking on scroll stutters on mobile).
-    mm.add(
-      "(prefers-reduced-motion: no-preference) and (max-width: 760px), (prefers-reduced-motion: no-preference) and (pointer: coarse)",
-      () => {
-        if (!v) return;
-        v.loop = true;
-        v.play?.().catch(() => {});
-        return () => { v.loop = false; v.pause(); };
-      }
     );
 
     return () => mm.revert();

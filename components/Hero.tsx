@@ -48,15 +48,26 @@ export default function Hero() {
           ease: "none",
           scrollTrigger: { trigger: root.current, start: "top top", end: "60% top", scrub: true },
         });
-        gsap.to(".hero-smoke", {
-          opacity: 0.0,
-          scale: 1.6,
-          ease: "none",
-          scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
-        });
       }
     }, root);
-    return () => ctx.revert();
+
+    // Stop decoding the fire loop once the hero is scrolled away.
+    const v = root.current?.querySelector<HTMLVideoElement>(".hero-video");
+    let io: IntersectionObserver | undefined;
+    if (v && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) v.play?.().catch(() => {});
+            else v.pause();
+          }
+        },
+        { threshold: 0.01 }
+      );
+      io.observe(root.current!);
+    }
+
+    return () => { io?.disconnect(); ctx.revert(); };
   }, []);
 
   const word = "SEL NOIR";
@@ -77,7 +88,6 @@ export default function Hero() {
         />
         <div className="hero-grade" />
       </div>
-      <div className="hero-smoke" />
 
       <div className="hero-content">
         <div className="hero-wordmark" aria-label="Sel Noir">
@@ -131,19 +141,6 @@ export default function Hero() {
           inset: 0;
           background: radial-gradient(ellipse at 50% 62%, rgba(10,10,11,0) 18%, rgba(10,10,11,0.55) 60%, rgba(10,10,11,0.96) 100%),
             linear-gradient(to bottom, rgba(10,10,11,0.7) 0%, transparent 28%, transparent 60%, rgba(10,10,11,0.9) 100%);
-        }
-        .hero-smoke {
-          position: absolute;
-          inset: -20%;
-          z-index: 2;
-          pointer-events: none;
-          opacity: 0.5;
-          mix-blend-mode: multiply;
-          animation: drift 24s linear infinite alternate;
-        }
-        @keyframes drift {
-          0% { transform: translate(-3%, 0) scale(1.1); }
-          100% { transform: translate(4%, -4%) scale(1.25); }
         }
         .hero-content {
           position: relative;

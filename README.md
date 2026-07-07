@@ -16,7 +16,7 @@ A dark-luxe, cinematic single-page site for **Sel Noir**, a steakhouse at 1490 S
 - **GSAP + ScrollTrigger** for scroll choreography (`gsap.matchMedia` for responsive desktop/mobile setups)
 - **Lenis** for smooth scrolling
 - Custom CSS + styled-jsx — no component libraries, bespoke and art-directed
-- Imagery and video generated with **fal.ai** (flux-pro stills, Kling image-to-video), re-encoded with ffmpeg (all-keyframes for scrubbing, seamless boomerang loops)
+- Imagery and video generated with **fal.ai** (flux-pro stills, Kling image-to-video), re-encoded with ffmpeg (720p, seamless boomerang loops). Videos pause when off-screen so only one decodes at a time.
 
 ## Develop
 
