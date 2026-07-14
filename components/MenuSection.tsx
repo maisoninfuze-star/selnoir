@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-type Item = { n: string; d?: string; p: string; v?: boolean };
+type Item = { n: string; d?: string; p: string; v?: boolean; img?: string };
 type Cat = { key: string; title: string; note?: string; items: Item[] };
 
 // Sel Noir's actual menu (selnoir.ca). Prices in CAD.
@@ -13,7 +13,7 @@ const MENU: Cat[] = [
     key: "appetizers",
     title: "Appetizers",
     items: [
-      { n: "Burrata", d: "Heirloom tomatoes, fried garlic, basil, capers, olive caramel, panko, homemade focaccia", p: "32" },
+      { n: "Burrata", d: "Heirloom tomatoes, fried garlic, basil, capers, olive caramel, panko, homemade focaccia", p: "32", img: "/images/burrata.jpg" },
       { n: "Bone Marrow Beef Tartare", d: "Filet mignon AAA, bone marrow, capers, pickles, bone marrow emulsion", p: "36" },
       { n: "Bluefin Tuna Tartare", d: "Tomato water, shishito peppers, cucumber, yuzu aioli, puffed rice, chive oil, wonton chips", p: "32" },
       { n: "Chilled Poached Salmon", d: "Radish salad, kumquats, pickled chilies, puffed rice, Mujol caviar, dill yogurt, lemon oil", p: "32" },
@@ -38,8 +38,8 @@ const MENU: Cat[] = [
       { n: "Ribeye AAA · 16 oz", p: "74" },
       { n: "Full Rack of Lamb", d: "Mint sauce, blueberry purée & rosemary", p: "68" },
       { n: "Australian Wagyu NY Strip · 10 oz", p: "150" },
-      { n: "Tomahawk · 21 days dry-aged · 40 oz", p: "160" },
-      { n: "Bone-in Ribeye · 21 days dry-aged · 50 oz", p: "180" },
+      { n: "Tomahawk · 21 days dry-aged · 40 oz", p: "160", img: "/images/tomahawk.jpg" },
+      { n: "Bone-in Ribeye · 21 days dry-aged · 50 oz", p: "180", img: "/images/tomahawk.jpg" },
     ],
   },
   {
@@ -58,7 +58,7 @@ const MENU: Cat[] = [
       { n: "Lobster & Shrimp Risotto", d: "Shrimp, lobster tail, squid ink, parmesan, bisque", p: "54" },
       { n: "AAA Black Angus Burger", d: "Bacon jam, caramelized onions, black garlic aioli, cheddar, fries & creamy coleslaw", p: "42" },
       { n: "Cavatelli", d: "Vodka rosé bolognese, burrata, basil", p: "40" },
-      { n: "Branzino Filet", d: "Corn purée, seasonal vegetables, grilled pineapple salsa", p: "38" },
+      { n: "Branzino Filet", d: "Corn purée, seasonal vegetables, grilled pineapple salsa", p: "38", img: "/images/branzino.jpg" },
       { n: "Half BBQ Cornish Hen", d: "Served with fries and creamy homemade coleslaw", p: "38" },
     ],
   },
@@ -92,6 +92,7 @@ const MENU: Cat[] = [
 
 export default function MenuSection() {
   const root = useRef<HTMLElement>(null);
+  const preview = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -111,6 +112,46 @@ export default function MenuSection() {
       },
       root
     );
+
+    // Cursor-following dish photo on hover (adapted from 21st.dev "Project
+    // Showcase" — but driven by GSAP quickTo, not per-frame React state, to stay
+    // cheap). Pointer devices only; touch never triggers it.
+    mm.add("(pointer: fine) and (prefers-reduced-motion: no-preference)", () => {
+      const p = preview.current;
+      const img = p?.querySelector("img");
+      const host = root.current;
+      if (!p || !img || !host) return;
+
+      gsap.set(p, { xPercent: -50, yPercent: -50, autoAlpha: 0, scale: 0.86, rotate: -4 });
+      const xTo = gsap.quickTo(p, "x", { duration: 0.5, ease: "power3" });
+      const yTo = gsap.quickTo(p, "y", { duration: 0.5, ease: "power3" });
+
+      const onMove = (e: MouseEvent) => { xTo(e.clientX + 26); yTo(e.clientY); };
+      const onOver = (e: MouseEvent) => {
+        const li = (e.target as HTMLElement)?.closest?.(".menu-item[data-img]") as HTMLElement | null;
+        if (!li) return;
+        const src = li.dataset.img!;
+        if (img.getAttribute("src") !== src) img.setAttribute("src", src);
+        gsap.to(p, { autoAlpha: 1, scale: 1, rotate: 0, duration: 0.45, ease: "power3.out" });
+      };
+      const onOut = (e: MouseEvent) => {
+        const from = (e.target as HTMLElement)?.closest?.(".menu-item[data-img]");
+        if (!from) return;
+        const to = (e.relatedTarget as HTMLElement)?.closest?.(".menu-item[data-img]");
+        if (to) return; // gliding between photographed items: keep it up
+        gsap.to(p, { autoAlpha: 0, scale: 0.86, rotate: -4, duration: 0.35, ease: "power3.out" });
+      };
+
+      window.addEventListener("mousemove", onMove);
+      host.addEventListener("mouseover", onOver);
+      host.addEventListener("mouseout", onOut);
+      return () => {
+        window.removeEventListener("mousemove", onMove);
+        host.removeEventListener("mouseover", onOver);
+        host.removeEventListener("mouseout", onOut);
+      };
+    });
+
     return () => mm.revert();
   }, []);
 
@@ -134,7 +175,11 @@ export default function MenuSection() {
             </div>
             <ul className="menu-items">
               {cat.items.map((it) => (
-                <li key={it.n} className="menu-item">
+                <li
+                  key={it.n}
+                  className={`menu-item${it.img ? " has-img" : ""}`}
+                  data-img={it.img}
+                >
                   <div className="menu-item-line">
                     <span className="menu-item-name">
                       {it.n}
@@ -154,6 +199,11 @@ export default function MenuSection() {
           <p>Buy the kitchen a beer +15</p>
           <a className="menu-reserve" href="#reserve" data-hot>Reserve a table</a>
         </div>
+      </div>
+
+      {/* cursor-following dish photo */}
+      <div ref={preview} className="menu-preview" aria-hidden>
+        <img alt="" />
       </div>
 
       <style jsx>{`
@@ -196,6 +246,9 @@ export default function MenuSection() {
         .menu-cat--surf-turf .menu-items { grid-template-columns: 1fr; gap: 2rem; }
 
         .menu-item { break-inside: avoid; }
+        .menu-item-name { transition: color 0.3s ease; }
+        .menu-item.has-img .menu-item-line { cursor: pointer; }
+        .menu-item.has-img:hover .menu-item-name { color: var(--gold); }
         .menu-item-line {
           display: flex;
           align-items: baseline;
@@ -263,6 +316,27 @@ export default function MenuSection() {
           transition: background 0.3s ease, color 0.3s ease;
         }
         .menu-reserve:hover { background: var(--ember-1); color: var(--black); }
+
+        .menu-preview {
+          position: fixed;
+          top: 0;
+          left: 0;
+          z-index: 60;
+          width: clamp(190px, 19vw, 270px);
+          aspect-ratio: 4 / 5;
+          pointer-events: none;
+          overflow: hidden;
+          visibility: hidden;
+          border: 1px solid rgba(232, 196, 137, 0.28);
+          box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65);
+          will-change: transform, opacity;
+        }
+        .menu-preview :global(img) {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
 
         @media (max-width: 760px) {
           .menu-items { grid-template-columns: 1fr; gap: 2.2rem; }
