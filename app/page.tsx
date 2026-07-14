@@ -6,6 +6,7 @@ import Hero from "@/components/Hero";
 import Story from "@/components/Story";
 import Marquee from "@/components/Marquee";
 import DishGallery from "@/components/DishGallery";
+import MenuSection from "@/components/MenuSection";
 import Closing from "@/components/Closing";
 import ReserveFab from "@/components/ReserveFab";
 
@@ -20,20 +21,21 @@ export default function Home() {
       <Cursor />
 
       <nav className="nav">
-        <span className="brand">SEL NOIR</span>
+        <a className="brand" href="#top">SEL NOIR</a>
         <div className="links">
-          <a href="#reserve">Menu</a>
-          <a href="#reserve">The Room</a>
+          <a href="#menu">Menu</a>
+          <a href="#room">The Room</a>
           <a href="#reserve">Reserve</a>
         </div>
       </nav>
 
-      <main>
+      <main id="top">
         <Hero />
         <SaltCrystal />
         <Story />
         <Marquee />
         <DishGallery />
+        <MenuSection />
         <Closing />
       </main>
 

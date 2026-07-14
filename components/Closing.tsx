@@ -45,14 +45,14 @@ export default function Closing() {
   return (
     <section ref={root}>
       {/* The room */}
-      <div className="room">
+      <div id="room" className="room">
         <div className="room-bg">
-          <img src="/images/room.jpg" alt="The dining room" />
+          <img src="/images/room.jpg" alt="Sel Noir's dining room: exposed stone, low candlelight, a table set for the evening" />
           <div className="room-grade" />
         </div>
         <div className="wrap room-copy">
           <h2>Exposed stone, a single candle,<br />and the glint off the knife.</h2>
-          <p>1490 Sherbrooke Ouest · Montréal · Valet evenings</p>
+          <p>1490 Sherbrooke Ouest · Montréal · Valet Friday &amp; Saturday</p>
           <Magnetic radius={80}>
             <a className="reserve-btn" href="#reserve" data-hot>
               Reserve a table
@@ -67,12 +67,19 @@ export default function Closing() {
           <div className="foot-grid">
             <div>
               <span className="label">Reservations</span>
-              <p className="foot-lead">Open Tuesday through Sunday, from 5 PM.</p>
+              <p className="foot-lead">Dinner nightly from 5 PM.<br />Fri &amp; Sat until midnight.</p>
               <Magnetic radius={80}>
-                <a className="reserve-btn ghost" href="https://www.opentable.com" target="_blank" rel="noreferrer" data-hot>
+                <a
+                  className="reserve-btn ghost"
+                  href="https://www.opentable.ca/r/sel-noir-steakhouse-reservations-montreal"
+                  target="_blank"
+                  rel="noreferrer"
+                  data-hot
+                >
                   Book on OpenTable
                 </a>
               </Magnetic>
+              <p className="foot-small">(514) 292-2923 · info@selnoir.ca</p>
             </div>
             <div>
               <span className="label">Find us</span>

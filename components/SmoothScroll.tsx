@@ -24,10 +24,29 @@ export default function SmoothScroll() {
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
 
-    // Pinned/scrubbed triggers are created before images & fonts settle, so their
-    // start/end are measured against a too-short document. Recompute once everything
-    // that affects layout height has loaded, otherwise the pinned gallery overlaps Story.
-    const refresh = () => ScrollTrigger.refresh();
+    // Lenis hijacks scrolling, so native #anchor jumps don't work. Route in-page
+    // anchor clicks through Lenis instead (this is what made Reserve / The Room dead).
+    const onAnchorClick = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement)?.closest?.('a[href^="#"]') as HTMLAnchorElement | null;
+      if (!a) return;
+      const hash = a.getAttribute("href");
+      if (!hash || hash === "#") return;
+      const target = document.querySelector(hash);
+      if (!target) return;
+      e.preventDefault();
+      lenis.scrollTo(target as HTMLElement, { offset: 0, duration: 1.4, force: true });
+      if (history.replaceState) history.replaceState(null, "", hash);
+    };
+    document.addEventListener("click", onAnchorClick);
+
+    // Pinned/scrubbed triggers AND Lenis's scroll limit are measured before images &
+    // fonts settle, against a too-short document. If Lenis keeps a stale (short) limit
+    // it clamps scrollTo and can't reach lower sections (Reserve / The Room). Recompute
+    // both once everything that affects layout height has loaded.
+    const refresh = () => {
+      lenis.resize();
+      ScrollTrigger.refresh();
+    };
     const timers = [setTimeout(refresh, 300), setTimeout(refresh, 1200)];
     window.addEventListener("load", refresh);
     if (document.fonts?.ready) document.fonts.ready.then(refresh);
@@ -38,6 +57,7 @@ export default function SmoothScroll() {
     return () => {
       timers.forEach(clearTimeout);
       window.removeEventListener("load", refresh);
+      document.removeEventListener("click", onAnchorClick);
       gsap.ticker.remove(raf);
       lenis.destroy();
     };
