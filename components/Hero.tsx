@@ -12,27 +12,25 @@ export default function Hero() {
     const ctx = gsap.context(() => {
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      // Kinetic wordmark reveal — letter by letter on a line of light
-      const letters = gsap.utils.toArray<HTMLElement>(".hero-letter");
-      gsap.set(letters, { yPercent: 120, opacity: 0 });
+      // The logo mark reveals with a slow wipe of light, then the line settles.
+      gsap.set(".hero-logo", { clipPath: "inset(0 100% 0 0)" });
       gsap.set(".hero-sub", { opacity: 0, y: 20 });
       gsap.set(".hero-scrollcue", { opacity: 0 });
 
       if (reduce) {
-        gsap.set([letters, ".hero-sub", ".hero-scrollcue"], { yPercent: 0, y: 0, opacity: 1 });
+        gsap.set(".hero-logo", { clipPath: "inset(0 0% 0 0)" });
+        gsap.set([".hero-sub", ".hero-scrollcue"], { y: 0, opacity: 1 });
         // Motion-sensitive: hold the hero on its still frame instead of looping fire.
         const v = root.current?.querySelector<HTMLVideoElement>(".hero-video");
         v?.pause();
       } else {
         const tl = gsap.timeline({ delay: 0.35 });
-        tl.to(letters, {
-          yPercent: 0,
-          opacity: 1,
-          duration: 1.1,
-          ease: "expo.out",
-          stagger: 0.075,
-        })
-          .to(".hero-sub", { opacity: 1, y: 0, duration: 1 }, "-=0.4")
+        tl.fromTo(
+          ".hero-logo",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 1.5, ease: "power3.inOut" }
+        )
+          .to(".hero-sub", { opacity: 1, y: 0, duration: 1 }, "-=0.6")
           .to(".hero-scrollcue", { opacity: 1, duration: 1 }, "-=0.3");
 
         // Scroll-driven camera push through the smoke
@@ -70,8 +68,6 @@ export default function Hero() {
     return () => { io?.disconnect(); ctx.revert(); };
   }, []);
 
-  const word = "SEL NOIR";
-
   return (
     <section ref={root} className="hero">
       <div className="hero-media">
@@ -90,16 +86,8 @@ export default function Hero() {
       </div>
 
       <div className="hero-content">
-        <div className="hero-wordmark" aria-label="Sel Noir">
-          {word.split("").map((ch, i) =>
-            ch === " " ? (
-              <span key={i} className="hero-space" />
-            ) : (
-              <span key={i} className="hero-letter-mask">
-                <span className="hero-letter">{ch}</span>
-              </span>
-            )
-          )}
+        <div className="hero-wordmark">
+          <div className="hero-logo" role="img" aria-label="Sel Noir Steakhouse" />
         </div>
         <p className="hero-sub">
           Black salt. Live fire. A carefully scripted, multi-sensory evening.
@@ -152,23 +140,16 @@ export default function Hero() {
         .hero-wordmark {
           display: flex;
           justify-content: center;
-          align-items: flex-end;
-          line-height: 0.9;
         }
-        .hero-letter-mask {
-          display: inline-block;
-          overflow: hidden;
+        .hero-logo {
+          width: clamp(300px, 62vw, 760px);
+          aspect-ratio: 1000 / 300;
+          background: var(--gold);
+          -webkit-mask: url("/logo.png") center / contain no-repeat;
+          mask: url("/logo.png") center / contain no-repeat;
+          filter: drop-shadow(0 6px 34px rgba(0, 0, 0, 0.55));
+          will-change: clip-path, transform;
         }
-        .hero-letter {
-          display: inline-block;
-          font-family: var(--serif);
-          font-weight: 500;
-          font-size: clamp(3.2rem, 13vw, 9.5rem);
-          letter-spacing: 0.04em;
-          color: var(--gold);
-          text-shadow: 0 0 55px rgba(232, 196, 137, 0.28), 0 2px 30px rgba(0, 0, 0, 0.55);
-        }
-        .hero-space { display: inline-block; width: clamp(1.4rem, 5vw, 4rem); }
         .hero-sub {
           margin-top: 1.8rem;
           font-size: clamp(0.82rem, 1.4vw, 1rem);
