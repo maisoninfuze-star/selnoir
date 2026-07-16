@@ -32,15 +32,15 @@ export default function Preloader() {
         },
       });
 
-      gsap.set(".pl-letter", { yPercent: 120 });
+      gsap.set(".pl-logo", { opacity: 0, scale: 0.94, filter: "blur(7px)" });
       gsap.set(".pl-line", { scaleX: 0 });
       gsap.set([".pl-top", ".pl-bottom"], { opacity: 0, y: 12 });
 
       tl.to(".pl-top", { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" })
-        .to(".pl-letter", { yPercent: 0, duration: 1, ease: "expo.out", stagger: 0.06 }, "-=0.3")
-        .to(".pl-line", { scaleX: 1, duration: 1, ease: "expo.inOut" }, "-=0.7")
+        .to(".pl-logo", { opacity: 1, scale: 1, filter: "blur(0px)", duration: 1.3, ease: "power3.out" }, "-=0.35")
+        .to(".pl-line", { scaleX: 1, duration: 1, ease: "expo.inOut" }, "-=0.8")
         .to(".pl-bottom", { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, "-=0.7")
-        .to({}, { duration: 0.8 })
+        .to({}, { duration: 0.9 })
         // the door opens: curtain lifts to reveal the room beneath
         .to(".pl-inner", { yPercent: -18, opacity: 0, duration: 1.1, ease: "power3.inOut" })
         .to(root.current, { yPercent: -100, duration: 1.2, ease: "expo.inOut" }, "-=0.9");
@@ -55,17 +55,7 @@ export default function Preloader() {
     <div ref={root} className="preloader" aria-hidden>
       <div className="pl-inner">
         <span className="pl-top">Montréal</span>
-        <div className="pl-mark" aria-label="Sel Noir">
-          {"SEL NOIR".split("").map((c, i) =>
-            c === " " ? (
-              <span key={i} className="pl-space" />
-            ) : (
-              <span key={i} className="pl-letter-mask">
-                <span className="pl-letter">{c}</span>
-              </span>
-            )
-          )}
-        </div>
+        <img className="pl-logo" src="/logo.png" alt="Sel Noir Steakhouse" />
         <div className="pl-line" />
         <span className="pl-bottom">Black salt · Live fire</span>
       </div>
@@ -98,21 +88,12 @@ export default function Preloader() {
           color: var(--gold);
           padding-left: 0.42em;
         }
-        .pl-mark {
-          display: flex;
-          align-items: flex-end;
-          line-height: 0.9;
+        .pl-logo {
+          width: clamp(260px, 46vw, 520px);
+          height: auto;
+          display: block;
+          will-change: transform, opacity, filter;
         }
-        .pl-letter-mask { display: inline-block; overflow: hidden; }
-        .pl-letter {
-          display: inline-block;
-          font-family: var(--serif);
-          font-weight: 500;
-          font-size: clamp(2.6rem, 9vw, 6.5rem);
-          letter-spacing: 0.05em;
-          color: var(--text);
-        }
-        .pl-space { display: inline-block; width: clamp(1rem, 3.5vw, 2.6rem); }
         .pl-line {
           width: min(320px, 60vw);
           height: 1px;
