@@ -22,15 +22,21 @@ export default function Preloader() {
     lenis?.stop();
     document.body.style.overflow = "hidden";
 
+    // Never let the curtain trap the site: whether the timeline completes or the
+    // fail-safe fires first, releasing runs exactly once and always restores scroll.
+    let released = false;
+    const release = () => {
+      if (released) return;
+      released = true;
+      sessionStorage.setItem("sn-intro", "1");
+      document.body.style.overflow = "";
+      lenis?.start();
+      setDone(true);
+    };
+    const failsafe = setTimeout(release, 9000);
+
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        onComplete: () => {
-          sessionStorage.setItem("sn-intro", "1");
-          document.body.style.overflow = "";
-          lenis?.start();
-          setDone(true);
-        },
-      });
+      const tl = gsap.timeline({ onComplete: release });
 
       gsap.set(".pl-logo", { opacity: 0, scale: 0.94, filter: "blur(7px)" });
       gsap.set(".pl-line", { scaleX: 0 });
@@ -46,7 +52,10 @@ export default function Preloader() {
         .to(root.current, { yPercent: -100, duration: 1.2, ease: "expo.inOut" }, "-=0.9");
     }, root);
 
-    return () => ctx.revert();
+    return () => {
+      clearTimeout(failsafe);
+      ctx.revert();
+    };
   }, []);
 
   if (done) return null;
